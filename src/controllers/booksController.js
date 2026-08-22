@@ -25,6 +25,17 @@ export const createBook = async (req, res) => {
   res.status(200).json(book);
 };
 
+export const deleteBook = async (req, res) => {
+  const { bookId } = req.params;
+  const book = await Book.findByIdAndDelete(bookId);
+
+  if(!book) {
+    throw createHttpError(404, `Book with id ${bookId} not found`);
+  }
+
+  res.status(200).json(book);
+}
+
 export const updateBook = async (req, res) => {
   const { bookId } = req.params;
   const book = await Book.findByIdAndUpdate(
@@ -40,13 +51,3 @@ export const updateBook = async (req, res) => {
   res.status(200).json(book);
 }
 
-export const deleteBook = async (req, res) => {
-  const { bookId } = req.params;
-    const book = await Book.findByIdAndDelete(bookId);
-
-    if(!book) {
-      throw createHttpError(404, `Book with id ${bookId} not found`);
-    }
-
-    res.status(200).json(book);
-}
