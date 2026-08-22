@@ -22,7 +22,7 @@ export const getBookById = async (req, res) => {
 export const createBook = async (req, res) => {
   const book = await Book.create(req.body);
 
-  res.status(200).json(book);
+  res.status(201).json(book);
 };
 
 export const deleteBook = async (req, res) => {
