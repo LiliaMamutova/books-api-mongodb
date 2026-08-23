@@ -10,7 +10,6 @@ import helmet from "helmet";
 
 
 const PORT = Number(process.env.PORT) || 3000;
-
 const app = express();
 
 app.use(logger);
@@ -19,7 +18,6 @@ app.use(cors());
 app.use(helmet());
 
 app.use(booksRoutes);
-
 
 app.use(errorHandler);
 app.use(notFoundHandler);
