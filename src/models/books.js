@@ -1,4 +1,5 @@
 import {model, Schema} from "mongoose";
+import {GENRE} from "../constants/genres.js";
 
 const bookSchema = new Schema({
   title: {
@@ -14,7 +15,7 @@ const bookSchema = new Schema({
   genre: {
     type: String,
     required: true,
-    trim: true,
+    enum: GENRE,
   },
   copies: {
     type: Number,

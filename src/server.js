@@ -7,6 +7,7 @@ import {notFoundHandler} from "./middleware/notFoundHandler.js";
 import {logger} from "./middleware/logger.js";
 import booksRoutes from "./routes/booksRoutes.js";
 import helmet from "helmet";
+import {errors} from "celebrate";
 
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -20,6 +21,7 @@ app.use(helmet());
 app.use(booksRoutes);
 
 app.use(errorHandler);
+app.use(errors());
 app.use(notFoundHandler);
 
 
