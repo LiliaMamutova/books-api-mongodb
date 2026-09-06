@@ -1,4 +1,5 @@
 import {HttpError} from "http-errors";
+import {Mongoose, MongooseError} from "mongoose";
 
 export const errorHandler = (err, req, res, next) => {
     console.error("Error MiddleWare: ", err);
@@ -9,6 +10,16 @@ export const errorHandler = (err, req, res, next) => {
         });
     }
 
+    const isMongooseError =
+      err instanceof MongooseError.ValidationError ||
+      err instanceof MongooseError.CastError;
+
+    if(isMongooseError) {
+      return res.status(400).json({
+        message: err.message
+      });
+    }
+
     const isProd = process.env.NODE_ENV === "production";
 
     res.status(500).json({
@@ -17,7 +28,4 @@ export const errorHandler = (err, req, res, next) => {
         ? "Something went wrong"
         : err.message
     });
-
-
-
 }

@@ -8,22 +8,27 @@ import {logger} from "./middleware/logger.js";
 import booksRoutes from "./routes/booksRoutes.js";
 import helmet from "helmet";
 import {errors} from "celebrate";
+import cookieParser from "cookie-parser";
+import authRoutes from "./routes/authRoutes.js";
 
 
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = Number(process.env.PORT) || 3030;
 const app = express();
 
 app.use(logger);
 app.use(express.json());
 app.use(cors());
 app.use(helmet());
+app.use(cookieParser());
 
-app.use(booksRoutes);
+app.use("/auth", authRoutes);
+app.use("/books", booksRoutes);
 
-app.use(errorHandler);
-app.use(errors());
 app.use(notFoundHandler);
 
+// error handler from celebrate (validation)
+app.use(errors());
+app.use(errorHandler);
 
 // connection to MongoDB
 await connectMongoDB();
