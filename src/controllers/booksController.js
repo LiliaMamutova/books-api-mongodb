@@ -104,5 +104,5 @@ export const updateBook = async (req, res) => {
   }
 
   res.status(200).json(book);
-}
+};
 

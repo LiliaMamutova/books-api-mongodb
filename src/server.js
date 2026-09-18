@@ -10,6 +10,7 @@ import helmet from "helmet";
 import {errors} from "celebrate";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 
 const PORT = Number(process.env.PORT) || 3030;
@@ -23,6 +24,7 @@ app.use(cookieParser());
 
 app.use("/auth", authRoutes);
 app.use("/books", booksRoutes);
+app.use("/users", userRoutes);
 
 app.use(notFoundHandler);
 

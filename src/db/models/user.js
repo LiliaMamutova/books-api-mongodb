@@ -16,8 +16,17 @@ const userSchema = new Schema({
     type: String,
     trim: true,
     required: true,
-  }
-
+  },
+  verify: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  attach: {
+    type: String,
+    default: "https://ac.goit.global/fullstack/react/default-avatar.jpg",
+    optional: true,
+  },
 }, {
   timestamps: true,
   versionKey: false,
@@ -25,8 +34,8 @@ const userSchema = new Schema({
 
 //хуки - це функції, які спрацьовують перед або після певних операцій
 userSchema.pre("save", function () {  // pre - це є преХук, перед тим, як щось зберегти, виконай цю функцію
-  if(!this.username) {
-   this.username = this.email;
+  if (!this.username) {
+    this.username = this.email;
   }
 });
 
