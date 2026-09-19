@@ -13,7 +13,6 @@ export const createBookSchema = {
 };
 
 
-
 export const getAllBooksSchema = {
   [Segments.QUERY]: Joi.object({
     page: Joi.number().integer().min(1).default(1),

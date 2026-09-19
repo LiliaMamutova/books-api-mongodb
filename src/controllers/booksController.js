@@ -9,7 +9,7 @@ export const getAllBooks = async (req, res) => {
   const skip = (page - 1) * perPage;
 
   // Створюємо базовий запит до колекції
-  const bookQuery = Book.find();
+  const bookQuery = Book.find({userId});
 
   // Пошук по частині title
   if(userId) {

@@ -33,6 +33,6 @@ const bookSchema = new Schema({
   versionKey: false, // вимикає службове поле __v.
 });
 
-bookSchema.index({ genre: 1, copies: 1 });
+bookSchema.index({ genre: 1, copies: 1, userId: 1 });
 
 export const Book = model("Book", bookSchema);

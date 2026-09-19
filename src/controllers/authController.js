@@ -27,6 +27,7 @@ export const registerUser = async (req, res) => {
   res.status(201).json(newUser); // повертаємо зареєстрованого користувача з 201 статусом з тілом відповіді
 };
 
+
 export const loginUser = async (req, res) => {
   const {email, password} = req.body;
 
@@ -40,7 +41,7 @@ export const loginUser = async (req, res) => {
     throw createHttpError(401, "Invalid email or password");
   }
 
-  // Це видаляє поперелню сесію, наприклаж, якщо сидиш з різних пристороях
+  // Це видаляє поперелню сесію, наприкла, якщо сидиш з різних пристороях
   await Session.deleteOne({userId: user._id});
 
   // або створює, якщо жодної сесії немає
@@ -49,6 +50,7 @@ export const loginUser = async (req, res) => {
 
   res.status(200).json(user);
 };
+
 
 export const refreshUserSession = async (req, res) => {
   const {sessionId} = req.cookies; // беремо з кукі sessionId щоб дізнатись що сесія існує
@@ -72,6 +74,7 @@ export const refreshUserSession = async (req, res) => {
 
   res.status(200).json({message: "Session refreshed"});
 };
+
 
 export const logoutUser = async (req, res) => {
   const {sessionId} = req.cookies;
