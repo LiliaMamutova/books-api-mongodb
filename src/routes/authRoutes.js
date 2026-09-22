@@ -38,5 +38,6 @@ authRouter.post("/reset-password",
   celebrate(resetPasswordSchema, { abortEarly: false }),
   resetPassword);
 
+
 export default authRouter;
 

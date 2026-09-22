@@ -4,15 +4,13 @@ import createHttpError from "http-errors";
 import Session from "../db/models/session.js";
 import {createSession, setSessionCookie} from "../services/auth.js";
 import jwt from "jsonwebtoken";
-import {resolve} from "node:path"
-import fs from "node:fs/promises";
 import {sendEmail} from "../utils/sendMail.js";
-import Handlebars from "handlebars";
+import {getEmailTemplate} from "../templates/emailTemplareLoader.js";
 
 const {JWT_SECRET, FRONTEND_DOMAIN, SMTP_FROM} = process.env;
 
 export const registerUser = async (req, res) => {
-  const {email, password} = req.body;
+  const {email, password, username} = req.body;
   const existingUser = await User.findOne({email});
   if (existingUser) {
     throw createHttpError(409, `Email: ${email} in use`);
@@ -21,8 +19,25 @@ export const registerUser = async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   const newUser = await User.create({...req.body, password: hashedPassword}); // зберігаємо користувача та захешований пароль в базі
 
-  const session = await createSession(newUser._id);
-  setSessionCookie(res, session);
+  const token = jwt.sign({email}, JWT_SECRET);
+
+  const handleTemplate = await getEmailTemplate("verify-email");
+
+  const html = handleTemplate({
+    name: username,
+    link: `${FRONTEND_DOMAIN}/auth/verify?token=${token}`,
+  });
+
+  const verifyUser = {
+    from: SMTP_FROM,
+    to: email,
+    subject: "Verify email",
+    html,
+  };
+
+  await sendEmail(verifyUser);
+  // const session = await createSession(newUser._id);
+  // setSessionCookie(res, session);
 
   res.status(201).json(newUser); // повертаємо зареєстрованого користувача з 201 статусом з тілом відповіді
 };
@@ -34,6 +49,9 @@ export const loginUser = async (req, res) => {
   const user = await User.findOne({email});
   if (!user) {
     throw createHttpError(401, "Invalid email or password");
+  }
+  if (!user.verify) {
+    throw createHttpError(401, "Email not verify");
   }
 
   const isValidPassword = await bcrypt.compare(password, user.password);
@@ -109,18 +127,17 @@ export const verifyUser = async (req, res) => {
 
     user.verify = true;
     await user.save();
+
     res.status(200).json({message: "Email successfully verified"})
 
   } catch (error) {
     throw createHttpError(401, error.message)
   }
-
-  res.status(200).json({});
 };
 
 
 export const requestResetEmail = async (req, res) => {
-  const {email} = req.body;
+  const {email, username} = req.body;
   const user = await User.findOne({email});
   if (!user) {
     return res.status(200).json({
@@ -134,12 +151,10 @@ export const requestResetEmail = async (req, res) => {
     {expiresIn: "15m"}
   );
 
-  const templatePath = resolve("src", "templates", "reset-password-email.html");
-  const templateSource = await fs.readFile(templatePath, "utf-8");
-  const template = Handlebars.compile(templateSource);
+  const handleTemplate = await getEmailTemplate("reset-password");
 
-  const html = template({
-    name: user.username,
+  const html = handleTemplate({
+    name: username,
     link: `${FRONTEND_DOMAIN}/auth/reset-password?token=${resetToken}`
   });
 
@@ -159,7 +174,7 @@ export const requestResetEmail = async (req, res) => {
 
 
 export const resetPassword = async (req, res) => {
-  const { token, password } = req.body;
+  const {token, password} = req.body;
 
   let payload;
   try {
@@ -172,7 +187,7 @@ export const resetPassword = async (req, res) => {
     _id: payload.sub, email: payload.email,
   });
 
-  if(!user){
+  if (!user) {
     throw createHttpError(404, `User: ${payload.email} not found`);
   }
 // 3. Якщо користувач існує
@@ -184,7 +199,7 @@ export const resetPassword = async (req, res) => {
     {password: hashedPassword});
 
   // 4. Інвалідовуємо всі можливі попередні сесії користувача
-  await Session.deleteMany({ userId: user._id});
+  await Session.deleteMany({userId: user._id});
 
   // 5. Повертаємо успішну відповідь
   res.status(200).json({message: "Password reset successfully. Please log in again."});

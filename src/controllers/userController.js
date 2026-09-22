@@ -2,7 +2,7 @@ import User from "../db/models/user.js";
 import createHttpError from "http-errors";
 import {saveFileToCloudinary} from "../utils/cloudinary.js";
 
-export const updateUserAvatar = async (req, res, next) => {
+export const updateUserAvatar = async (req, res) => {
   const {file, user} = req;
 
   if (!req.file) {

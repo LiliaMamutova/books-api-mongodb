@@ -1,3 +1,5 @@
+//middleware для завантаження зображень
+
 import multer from "multer";
 import createHttpError from "http-errors";
 
